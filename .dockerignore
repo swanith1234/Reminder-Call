@@ -1,0 +1,7 @@
+target/*.war
+target/*.zip
+target/*.tar
+target/surefire-reports/
+*.git
+*.idea
+.DS_Store
