@@ -11,13 +11,13 @@ import org.springframework.context.event.EventListener;
 @Configuration
 public class TwilioConfig {
 
-  @Value("${twilio.account-sid}")
+  @Value("${twilio_account-sid}")
   private String accountSid;
 
-  @Value("${twilio.auth-token}")
+  @Value("${twilio_auth-token}")
   private String authToken;
 
-  @Value("${twilio.phone-number}")
+  @Value("${twilio_phone-number}")
   private String twilioPhoneNumber;
 
   // @PostConstruct

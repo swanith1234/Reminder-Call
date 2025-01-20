@@ -1,9 +1,6 @@
 package com.swanith.Reminder_Call.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class CallResponse {
@@ -11,10 +8,11 @@ public class CallResponse {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+
   private String callSid;
   private String toPhoneNumber;
   private String message;
-  private String responseText; // Store the voice-to-text response
+  private String responseText;
 
   public Long getId() {
     return id;
@@ -56,4 +54,6 @@ public class CallResponse {
     this.responseText = responseText;
   }
 
+  // Getters and setters
+  // ...
 }
