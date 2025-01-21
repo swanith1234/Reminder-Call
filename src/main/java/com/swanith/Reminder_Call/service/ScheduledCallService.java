@@ -25,7 +25,10 @@ public class ScheduledCallService {
   }
 
   public String initiateCall(String toPhoneNumber, String message) {
-    String twilioVoiceUrl="https://reminder-call.onrender.com/twilio/voice-url?message={message}";
+    String encodedMessage = URLEncoder.encode(message, StandardCharsets.UTF_8.toString());
+
+            // Construct the Twilio Voice URL with the encoded message
+            String twilioVoiceUrl = "https://reminder-call.onrender.com/twilio/voice-url?message=" + encodedMessage;
     try {
       Call call = Call.creator(
           new PhoneNumber(toPhoneNumber),
