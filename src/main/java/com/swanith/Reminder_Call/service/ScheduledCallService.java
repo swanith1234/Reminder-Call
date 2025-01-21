@@ -25,7 +25,7 @@ public class ScheduledCallService {
   }
 
   public String initiateCall(String toPhoneNumber, String message) {
-    String twilioVoiceUrl="https://reminder-call.onrender.com/twilio/voice-url?message={message_variable}"
+    String twilioVoiceUrl="https://reminder-call.onrender.com/twilio/voice-url?message={message}"
     try {
       Call call = Call.creator(
           new PhoneNumber(toPhoneNumber),
