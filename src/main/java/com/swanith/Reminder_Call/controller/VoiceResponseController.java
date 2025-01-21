@@ -30,9 +30,9 @@ public class VoiceResponseController {
     return ScheduledCallService.processVoiceResponse(callSid, speechResult);
   }
 
- @GetMapping("/voice-url")
-  public ResponseEntity<String> voiceUrl(@RequestParam("message") String message) {
-    // You can customize the message or use the one passed in the URL
+@GetMapping("/voice-url")
+public ResponseEntity<String> voiceUrl(@RequestParam("message") String message) {
+    // Create TwiML XML
     String twiml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
         + "<Response>\n"
         + "    <Say voice=\"alice\">" + message + "</Say>\n"
@@ -42,7 +42,11 @@ public class VoiceResponseController {
         + "    <Say voice=\"alice\">We didn't get a response. Goodbye!</Say>\n"
         + "</Response>";
 
-    return ResponseEntity.ok(twiml);
-  }
+    // Return response with correct Content-Type
+    return ResponseEntity.ok()
+        .header("Content-Type", "application/xml")
+        .body(twiml);
+}
+
   
 }
