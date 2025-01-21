@@ -30,7 +30,7 @@ public class VoiceResponseController {
     return ScheduledCallService.processVoiceResponse(callSid, speechResult);
   }
 
-@GetMapping("/voice-url",method = {RequestMethod.GET, RequestMethod.POST})
+@RequestMapping(value = "/voice-url", method = {RequestMethod.GET, RequestMethod.POST})
 public ResponseEntity<String> voiceUrl(@RequestParam("message") String message) {
     // Create TwiML XML
     String twiml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
