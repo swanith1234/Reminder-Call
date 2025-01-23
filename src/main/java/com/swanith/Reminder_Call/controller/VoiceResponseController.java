@@ -18,11 +18,30 @@ public class VoiceResponseController {
     this.ScheduledCallService = ScheduledCallService;
   }
 
-  @PostMapping("/make-call")
-  public String makeCall(@RequestParam("toPhoneNumber") String toPhoneNumber,
-      @RequestParam("message") String message) {
-    return ScheduledCallService.initiateCall(toPhoneNumber, message);
-  }
+@PostMapping("/voice-response-handler")
+public ResponseEntity<String> handleVoiceResponse(
+    @RequestParam("CallSid") String callSid,
+    @RequestParam("Digits") String digits) {
+
+    // Log incoming parameters
+    System.out.println("CallSid: " + callSid);
+    System.out.println("Digits: " + digits);
+
+    // Process response based on DTMF input
+    String message = "You pressed: " + digits;
+    ScheduledCallService.processVoiceResponse(callSid, message);
+
+    // Return TwiML response
+    String twiml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+        + "<Response>\n"
+        + "    <Say voice=\"alice\">Thank you for your response. Goodbye!</Say>\n"
+        + "</Response>";
+
+    return ResponseEntity.ok()
+        .header("Content-Type", "application/xml")
+        .body(twiml);
+}
+
 
   @PostMapping("/voice-response-handler")
   public String handleVoiceResponse(@RequestParam("CallSid") String callSid,
