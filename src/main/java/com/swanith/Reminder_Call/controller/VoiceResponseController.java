@@ -21,14 +21,14 @@ public class VoiceResponseController {
 @PostMapping("/voice-response-handler")
 public ResponseEntity<String> handleVoiceResponse(
     @RequestParam("CallSid") String callSid,
-    @RequestParam("Digits") String digits) {
+    @RequestParam("SpeechResult") String speechResult) {
 
-    // Log incoming parameters
+    // Log incoming parameters for debugging
     System.out.println("CallSid: " + callSid);
-    System.out.println("Digits: " + digits);
+    System.out.println("SpeechResult: " + speechResult);
 
-    // Process response based on DTMF input
-    String message = "You pressed: " + digits;
+    // Process the speech input (save to database)
+    String message = "User said: " + speechResult;
     ScheduledCallService.processVoiceResponse(callSid, message);
 
     // Return TwiML response
@@ -42,21 +42,19 @@ public ResponseEntity<String> handleVoiceResponse(
         .body(twiml);
 }
 
-
   // @PostMapping("/voice-response-handler")
   // public String handleVoiceResponse(@RequestParam("CallSid") String callSid,
   //     @RequestParam("SpeechResult") String speechResult) {
   //   return ScheduledCallService.processVoiceResponse(callSid, speechResult);
   // }
-
 @RequestMapping(value = "/voice-url", method = {RequestMethod.GET, RequestMethod.POST})
 public ResponseEntity<String> voiceUrl(@RequestParam("message") String message) {
-    // Create TwiML XML
+    // Create TwiML XML to collect speech from the user
     String twiml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
         + "<Response>\n"
         + "    <Say voice=\"alice\">" + message + "</Say>\n"
-        + "    <Gather input=\"dtmf\" timeout=\"10\" numDigits=\"1\" action=\"/twilio/voice-response-handler\" method=\"POST\">\n"
-        + "        <Say voice=\"alice\">Please press any key to confirm you received this message.</Say>\n"
+        + "    <Gather input=\"speech\" timeout=\"10\" action=\"/twilio/voice-response-handler\" method=\"POST\">\n"
+        + "        <Say voice=\"alice\">Please say something to confirm you received this message.</Say>\n"
         + "    </Gather>\n"
         + "    <Say voice=\"alice\">We didn't get a response. Goodbye!</Say>\n"
         + "</Response>";
@@ -66,6 +64,7 @@ public ResponseEntity<String> voiceUrl(@RequestParam("message") String message) 
         .header("Content-Type", "application/xml")
         .body(twiml);
 }
+
 
   
 }
