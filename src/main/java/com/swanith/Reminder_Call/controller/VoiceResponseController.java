@@ -17,6 +17,11 @@ public class VoiceResponseController {
   public VoiceResponseController(ScheduledCallService ScheduledCallService) {
     this.ScheduledCallService = ScheduledCallService;
   }
+   @PostMapping("/make-call")
+  public String makeCall(@RequestParam("toPhoneNumber") String toPhoneNumber,
+      @RequestParam("message") String message) {
+    return ScheduledCallService.initiateCall(toPhoneNumber, message);
+  }
 
 @PostMapping("/voice-response-handler")
 public ResponseEntity<String> handleVoiceResponse(
