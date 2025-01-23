@@ -43,11 +43,11 @@ public ResponseEntity<String> handleVoiceResponse(
 }
 
 
-  @PostMapping("/voice-response-handler")
-  public String handleVoiceResponse(@RequestParam("CallSid") String callSid,
-      @RequestParam("SpeechResult") String speechResult) {
-    return ScheduledCallService.processVoiceResponse(callSid, speechResult);
-  }
+  // @PostMapping("/voice-response-handler")
+  // public String handleVoiceResponse(@RequestParam("CallSid") String callSid,
+  //     @RequestParam("SpeechResult") String speechResult) {
+  //   return ScheduledCallService.processVoiceResponse(callSid, speechResult);
+  // }
 
 @RequestMapping(value = "/voice-url", method = {RequestMethod.GET, RequestMethod.POST})
 public ResponseEntity<String> voiceUrl(@RequestParam("message") String message) {
