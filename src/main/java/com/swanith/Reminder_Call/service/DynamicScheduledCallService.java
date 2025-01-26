@@ -3,6 +3,8 @@ package com.swanith.Reminder_Call.service;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 
+import jakarta.annotation.PreDestroy;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.ScheduledFuture;
@@ -28,4 +30,11 @@ public class DynamicScheduledCallService {
             scheduledCallService.initiateCall(toPhoneNumber, message);
         }, new java.util.Date(System.currentTimeMillis() + delayInMillis));
     }
+
+    @PreDestroy
+    public void shutDown() {
+        taskScheduler.shutdown();
+        System.out.println("Task Scheduler shut down gracefully.");
+    }
+
 }
