@@ -17,6 +17,29 @@ public class VoiceResponseController {
   public VoiceResponseController(ScheduledCallService ScheduledCallService) {
     this.ScheduledCallService = ScheduledCallService;
   }
+   private final DynamicScheduledCallService dynamicScheduledCallService;
+
+    public VoiceResponseController(DynamicScheduledCallService dynamicScheduledCallService) {
+        this.dynamicScheduledCallService = dynamicScheduledCallService;
+    }
+
+   @PostMapping("/schedule-call")
+    public ResponseEntity<String> scheduleCall(
+            @RequestParam("toPhoneNumber") String toPhoneNumber,
+            @RequestParam("message") String message,
+            @RequestParam("scheduledTime") String scheduledTime) {
+
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime scheduleTime = LocalDateTime.parse(scheduledTime, formatter);
+
+            dynamicScheduledCallService.scheduleCall(toPhoneNumber, message, scheduleTime);
+            return ResponseEntity.ok("Call scheduled successfully for: " + scheduledTime);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Error scheduling call: " + e.getMessage());
+        }
+    }
    @PostMapping("/make-call")
   public String makeCall(@RequestParam("toPhoneNumber") String toPhoneNumber,
       @RequestParam("message") String message) {
