@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 
 @Service
 public class ScheduledCallService {
@@ -15,8 +18,8 @@ public class ScheduledCallService {
   @Value("${twilio_phone-number}")
   private String twilioPhoneNumber;
 
-  @Value("${twilio_voice-url}")
-  private String twilioVoiceUrl;
+  // // @Value("${twilio_voice-url}")
+  // private String twilioVoiceUrl;
 
   private final CallResponseRepository callResponseRepository;
 
@@ -25,7 +28,12 @@ public class ScheduledCallService {
   }
 
   public String initiateCall(String toPhoneNumber, String message) {
+
     try {
+          String encodedMessage = URLEncoder.encode(message, StandardCharsets.UTF_8.toString());
+
+            // Construct the Twilio Voice URL with the encoded message
+            String twilioVoiceUrl = "https://reminder-call.onrender.com/twilio/voice-url?message=" + encodedMessage;
       Call call = Call.creator(
           new PhoneNumber(toPhoneNumber),
           new PhoneNumber(twilioPhoneNumber),

@@ -28,24 +28,50 @@ public class VoiceResponseController {
   }
 
   @PostMapping("/voice-response-handler")
-  public String handleVoiceResponse(@RequestParam("CallSid") String callSid,
+  public ResponseEntity<String> handleVoiceResponse(
+      @RequestParam("CallSid") String callSid,
       @RequestParam("SpeechResult") String speechResult) {
-    return ScheduledCallService.processVoiceResponse(callSid, speechResult);
+
+    // Log incoming parameters for debugging
+    System.out.println("CallSid: " + callSid);
+    System.out.println("SpeechResult: " + speechResult);
+
+    // Process the speech input (save to database)
+    String message = "User said: " + speechResult;
+    ScheduledCallService.processVoiceResponse(callSid, message);
+
+    // Return TwiML response
+    String twiml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+        + "<Response>\n"
+        + "    <Say voice=\"alice\">Thank you for your response. Goodbye!</Say>\n"
+        + "</Response>";
+
+    return ResponseEntity.ok()
+        .header("Content-Type", "application/xml")
+        .body(twiml);
   }
 
-  @RequestMapping("/voice-url",method={RequestMethod.GET, RequestMethod.POST})
-
+  // @PostMapping("/voice-response-handler")
+  // public String handleVoiceResponse(@RequestParam("CallSid") String callSid,
+  // @RequestParam("SpeechResult") String speechResult) {
+  // return ScheduledCallService.processVoiceResponse(callSid, speechResult);
+  // }
+  @RequestMapping(value = "/voice-url", method = { RequestMethod.GET, RequestMethod.POST })
   public ResponseEntity<String> voiceUrl(@RequestParam("message") String message) {
-    // You can customize the message or use the one passed in the URL
+    // Create TwiML XML to collect speech from the user
     String twiml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
         + "<Response>\n"
         + "    <Say voice=\"alice\">" + message + "</Say>\n"
-        + "    <Gather input=\"dtmf\" timeout=\"10\" numDigits=\"1\" action=\"/twilio/voice-response-handler\" method=\"POST\">\n"
-        + "        <Say voice=\"alice\">Please press any key to confirm you received this message.</Say>\n"
+        + "    <Gather input=\"speech\" timeout=\"10\" action=\"/twilio/voice-response-handler\" method=\"POST\">\n"
+        + "        <Say voice=\"alice\">Please say something to confirm you received this message.</Say>\n"
         + "    </Gather>\n"
         + "    <Say voice=\"alice\">We didn't get a response. Goodbye!</Say>\n"
         + "</Response>";
 
-    return ResponseEntity.ok(twiml);
+    // Return response with correct Content-Type
+    return ResponseEntity.ok()
+        .header("Content-Type", "application/xml")
+        .body(twiml);
   }
+
 }

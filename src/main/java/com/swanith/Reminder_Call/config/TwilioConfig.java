@@ -21,11 +21,14 @@ public class TwilioConfig {
   private String twilioPhoneNumber;
 
   // @PostConstruct
-  @EventListener(ApplicationReadyEvent.class)
-  public void initTwilio() {
+@EventListener(ApplicationReadyEvent.class)
+public void initTwilio() {
+    System.out.println("Twilio Account SID: " + accountSid); // Verify SID
+    System.out.println("Twilio Auth Token: " + authToken); // Verify Token
+    System.out.println("Twilio Phone Number: " + twilioPhoneNumber); // Verify Phone Number
     Twilio.init(accountSid, authToken);
-    System.out.println("Twilio initialized with account sid: " + accountSid);
-  }
+    System.out.println("Twilio initialized successfully.");
+}
 
   public String getTwilioPhoneNumber() {
     return twilioPhoneNumber;
