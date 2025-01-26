@@ -25,7 +25,7 @@ public class DynamicScheduledCallService {
     public ScheduledFuture<?> scheduleCall(String toPhoneNumber, String message, LocalDateTime scheduleTime) {
         // Calculate delay
         long delayInMillis = Duration.between(LocalDateTime.now(), scheduleTime).toMillis();
-
+System.out.print("intiating call");
         return taskScheduler.schedule(() -> {
             scheduledCallService.initiateCall(toPhoneNumber, message);
         }, new java.util.Date(System.currentTimeMillis() + delayInMillis));

@@ -28,7 +28,7 @@ public class ScheduledCallService {
   }
 
   public String initiateCall(String toPhoneNumber, String message) {
-
+System.out.print("intiated call");
     try {
           String encodedMessage = URLEncoder.encode(message, StandardCharsets.UTF_8.toString());
 
