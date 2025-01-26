@@ -1,29 +1,28 @@
 package com.swanith.Reminder_Call.controller;
 
+import com.swanith.Reminder_Call.service.DynamicScheduledCallService;
 import com.swanith.Reminder_Call.service.ScheduledCallService;
 import com.twilio.twiml.VoiceResponse;
 import com.twilio.twiml.voice.Gather;
 import com.twilio.twiml.voice.Say;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/twilio")
 public class VoiceResponseController {
 
-  private final ScheduledCallService ScheduledCallService;
-
-  public VoiceResponseController(ScheduledCallService ScheduledCallService) {
-    this.ScheduledCallService = ScheduledCallService;
-  }
-
+  private final ScheduledCallService scheduledCallService;
   private final DynamicScheduledCallService dynamicScheduledCallService;
 
-  public VoiceResponseController(DynamicScheduledCallService dynamicScheduledCallService) {
+  // Constructor to inject dependencies
+  public VoiceResponseController(ScheduledCallService scheduledCallService,
+      DynamicScheduledCallService dynamicScheduledCallService) {
+    this.scheduledCallService = scheduledCallService;
     this.dynamicScheduledCallService = dynamicScheduledCallService;
   }
 
@@ -46,9 +45,17 @@ public class VoiceResponseController {
   }
 
   @PostMapping("/make-call")
-  public String makeCall(@RequestParam("toPhoneNumber") String toPhoneNumber,
+  public ResponseEntity<String> makeCall(
+      @RequestParam("toPhoneNumber") String toPhoneNumber,
       @RequestParam("message") String message) {
-    return ScheduledCallService.initiateCall(toPhoneNumber, message);
+
+    try {
+      String result = scheduledCallService.initiateCall(toPhoneNumber, message);
+      return ResponseEntity.ok(result);
+    } catch (Exception e) {
+      e.printStackTrace();
+      return ResponseEntity.badRequest().body("Error initiating call: " + e.getMessage());
+    }
   }
 
   @PostMapping("/voice-response-handler")
@@ -60,42 +67,46 @@ public class VoiceResponseController {
     System.out.println("CallSid: " + callSid);
     System.out.println("SpeechResult: " + speechResult);
 
-    // Process the speech input (save to database)
-    String message = "User said: " + speechResult;
-    ScheduledCallService.processVoiceResponse(callSid, message);
+    try {
+      // Process the speech input (save to database or log)
+      String message = "User said: " + speechResult;
+      scheduledCallService.processVoiceResponse(callSid, message);
 
-    // Return TwiML response
-    String twiml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-        + "<Response>\n"
-        + "    <Say voice=\"alice\">Thank you for your response. Goodbye!</Say>\n"
-        + "</Response>";
+      // Return TwiML response
+      String twiml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+          + "<Response>\n"
+          + "    <Say voice=\"alice\">Thank you for your response. Goodbye!</Say>\n"
+          + "</Response>";
 
-    return ResponseEntity.ok()
-        .header("Content-Type", "application/xml")
-        .body(twiml);
+      return ResponseEntity.ok()
+          .header("Content-Type", "application/xml")
+          .body(twiml);
+    } catch (Exception e) {
+      e.printStackTrace();
+      return ResponseEntity.badRequest().body("Error processing voice response: " + e.getMessage());
+    }
   }
 
-  // @PostMapping("/voice-response-handler")
-  // public String handleVoiceResponse(@RequestParam("CallSid") String callSid,
-  // @RequestParam("SpeechResult") String speechResult) {
-  // return ScheduledCallService.processVoiceResponse(callSid, speechResult);
-  // }
   @RequestMapping(value = "/voice-url", method = { RequestMethod.GET, RequestMethod.POST })
   public ResponseEntity<String> voiceUrl(@RequestParam("message") String message) {
-    // Create TwiML XML to collect speech from the user
-    String twiml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-        + "<Response>\n"
-        + "    <Say voice=\"alice\">" + message + "</Say>\n"
-        + "    <Gather input=\"speech\" timeout=\"10\" action=\"/twilio/voice-response-handler\" method=\"POST\">\n"
-        + "        <Say voice=\"alice\">Please say something to confirm you received this message.</Say>\n"
-        + "    </Gather>\n"
-        + "    <Say voice=\"alice\">We didn't get a response. Goodbye!</Say>\n"
-        + "</Response>";
+    try {
+      // Create TwiML XML to collect speech from the user
+      String twiml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+          + "<Response>\n"
+          + "    <Say voice=\"alice\">" + message + "</Say>\n"
+          + "    <Gather input=\"speech\" timeout=\"10\" action=\"/twilio/voice-response-handler\" method=\"POST\">\n"
+          + "        <Say voice=\"alice\">Please say something to confirm you received this message.</Say>\n"
+          + "    </Gather>\n"
+          + "    <Say voice=\"alice\">We didn't get a response. Goodbye!</Say>\n"
+          + "</Response>";
 
-    // Return response with correct Content-Type
-    return ResponseEntity.ok()
-        .header("Content-Type", "application/xml")
-        .body(twiml);
+      // Return response with correct Content-Type
+      return ResponseEntity.ok()
+          .header("Content-Type", "application/xml")
+          .body(twiml);
+    } catch (Exception e) {
+      e.printStackTrace();
+      return ResponseEntity.badRequest().body("Error generating voice URL TwiML: " + e.getMessage());
+    }
   }
-
 }
